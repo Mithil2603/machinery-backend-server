@@ -7,10 +7,12 @@ import {
   deleteUser,
 } from "../models/users.js";
 
+import { authenticate, authorize } from "../middlewares/auth.js";
+
 const router = express.Router(); 
 
 // Get all users
-router.get("/", async (req, res) => {
+router.get("/", authenticate, authorize(["Owner"]), async (req, res) => {
   try {
     const users = await getUsers();
     res.json(users);
@@ -20,7 +22,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get a user by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, authorize(["Owner"]), async (req, res) => {
   try {
     const user = await getUser(req.params.id);
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -51,7 +53,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // Delete a user
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, authorize(["Owner"]), async (req, res) => {
   try {
     await deleteUser(req.params.id);
     res.json({ message: "User deleted successfully" });

@@ -9,6 +9,7 @@ import PaymentRoutes from "./routes/payment.js";
 import DeliveryRoutes from "./routes/delivery.js";
 import ServiceRoutes from "./routes/services.js";
 import FeedbacksRoutes from "./routes/feedbacks.js";
+import authRoutes from "./routes/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 8080;
 app.use(bodyParser.json());
 
 // Routes
+app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/products", ProductRoutes);

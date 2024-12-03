@@ -17,19 +17,19 @@ export async function getCategory(id) {
 
 // Create a new Category
 export async function createCategory(category) {
-  const { category_name, category_description } = category;
+  const { category_name, category_description, category_img } = category;
   const [result] = await pool.query(
-    "INSERT INTO category_tbl (category_name, category_description) VALUES (?, ?)",
-    [category_name, category_description]
+    "INSERT INTO category_tbl (category_name, category_description, category_img) VALUES (?, ?, ?)",
+    [category_name, category_description, category_img]
   );
   return { id: result.insertId };
 }
 
 // Update Category
 export async function updateCategory(id, category) {
-  const { category_name, category_description } = category;
+  const { category_name, category_description, category_img } = category;
   await pool.query(
-    `UPDATE category_tbl SET category_name = ?, category_description = ? WHERE category_id = ?`, [category_name, category_description, id]
+    `UPDATE category_tbl SET category_name = ?, category_description = ? WHERE category_id = ?`, [category_name, category_description, category_img, id]
   );
   return { message: "Category updated successfully" };
 }

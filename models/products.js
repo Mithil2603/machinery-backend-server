@@ -17,21 +17,21 @@ export async function getProduct(id) {
 
 // Create a new product
 export async function createProduct(product) {
-  const { category_id, product_name, product_description } = product;
+  const { category_id, product_name, product_description, product_img } = product;
 
   // Serialize product_description to JSON
   const serializedDescription = JSON.stringify(product_description);
 
   const [result] = await pool.query(
-    "INSERT INTO product_tbl (category_id, product_name, product_description) VALUES (?, ?, ?)",
-    [category_id, product_name, serializedDescription]
+    "INSERT INTO product_tbl (category_id, product_name, product_description, product_img) VALUES (?, ?, ?, ?)",
+    [category_id, product_name, serializedDescription, product_img]
   );
   return { id: result.insertId };
 }
 
 // Update product details
 export async function updateProduct(id, product) {
-  const { category_id, product_name, product_description } = product;
+  const { category_id, product_name, product_description, product_img } = product;
 
   // Serialize product_description to JSON
   const serializedDescription = JSON.stringify(product_description);
@@ -41,9 +41,10 @@ export async function updateProduct(id, product) {
        SET 
           category_id = ?, 
           product_name = ?, 
-          product_description = ?
+          product_description = ?,
+          product_img = ?
        WHERE product_id = ?`,
-    [category_id, product_name, serializedDescription, id]
+    [category_id, product_name, serializedDescription, product_img, id]
   );
 
   return { message: "Product updated successfully" };

@@ -7,10 +7,12 @@ import {
   deleteCategory,
 } from "../models/categories.js";
 
+import { generateToken, authenticate, authorize } from "../middlewares/auth.js";
+
 const router = express.Router();
 
 // Get all Categories
-router.get("/", async (req, res) => {
+router.get("/", authenticate, authorize(["customer", "owner"]), async (req, res) => {
   try {
     const categories = await getCategories();
     res.json(categories);
@@ -20,7 +22,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get a Category by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, authorize(["customer", "owner"]), async (req, res) => {
   try {
     const category = await getCategory(req.params.id);
     if (!category) return res.status(404).json({ error: "category not found" });
@@ -31,7 +33,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Create a new Category
-router.post("/", async (req, res) => {
+router.post("/", authenticate, authorize(["owner"]), async (req, res) => {
     try{
         const newCategory = await createCategory(req.body);
         res.status(201).json(newCategory);
@@ -42,7 +44,7 @@ router.post("/", async (req, res) => {
 })
 
 // Update the Category
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticate, authorize(["owner"]), async (req, res) => {
     try{
         await updateCategory(req.params.id, req.body);
         res.json({ message: "Category Updated Successfully!" });
@@ -53,7 +55,7 @@ router.patch("/:id", async (req, res) => {
 })
 
 // Delete a Category
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, authorize(["owner"]), async (req, res) => {
     try{
         await deleteCategory(req.params.id);
         res.json({ message: "Category Deleted Successfully!" });

@@ -7,10 +7,12 @@ import {
     deleteProduct,
 } from "../models/products.js";
 
+import { generateToken, authenticate, authorize } from "../middlewares/auth.js";
+
 const router = express.Router(); 
 
 // Get all products
-router.get("/", async (req, res) => {
+router.get("/", authenticate, authorize(["customer", "owner"]), async (req, res) => {
   try {
     const products = await getProducts();
     res.json(products);
@@ -20,7 +22,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get a product by ID
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, authorize(["customer", "owner"]), async (req, res) => {
   try {
     const product = await getProduct(req.params.id);
     if (!product) return res.status(404).json({ error: "Product not found" });
@@ -31,7 +33,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Create a new product
-router.post("/", async (req, res) => {
+router.post("/", authenticate, authorize(["owner"]), async (req, res) => {
   try {
     const newProduct = await createProduct(req.body);
     res.status(201).json(newProduct);
@@ -41,7 +43,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update a product
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticate, authorize(["owner"]), async (req, res) => {
   try {
     await updateProduct(req.params.id, req.body);
     res.json({ message: "Product updated successfully" });
@@ -51,7 +53,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // Delete a product
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, authorize(["owner"]), async (req, res) => {
   try {
     await deleteProduct(req.params.id);
     res.json({ message: "Product deleted successfully" });

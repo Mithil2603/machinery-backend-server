@@ -1,16 +1,17 @@
 import express from "express";
 import {
-    getAllDelivery,
-    getDelivery,
-    createDelivery,
-    updateDelivery,
-    deleteDelivery,
+  getAllDelivery,
+  getDelivery,
+  createDelivery,
+  updateDelivery,
+  deleteDelivery,
 } from "../models/delivery.js";
+import { generateToken, authenticate, authorize } from "../middlewares/auth.js";
 
-const router = express.Router(); 
+const router = express.Router();
 
 // Get all delivery
-router.get("/", async (req, res) => {
+router.get("/", authenticate, authorize(["owner"]), async (req, res) => {
   try {
     const delivery = await getAllDelivery();
     res.json(delivery);
@@ -31,7 +32,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Create a new delivery
-router.post("/", async (req, res) => {
+router.post("/", authenticate, authorize(["owner"]), async (req, res) => {
   try {
     const newDelivery = await createDelivery(req.body);
     res.status(201).json(newDelivery);
@@ -41,7 +42,7 @@ router.post("/", async (req, res) => {
 });
 
 // Update a delivery
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticate, authorize(["owner"]), async (req, res) => {
   try {
     await updateDelivery(req.params.id, req.body);
     res.json({ message: "Delivery updated successfully" });
@@ -51,7 +52,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // Delete a delivery
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticate, authorize(["owner"]), async (req, res) => {
   try {
     await deleteDelivery(req.params.id);
     res.json({ message: "Delivery deleted successfully" });
