@@ -1,15 +1,24 @@
 import pool from "../db_connect.js";
 
-// Get all feedbacks
+// Get all feedbacks with user's first and last name
 export async function getFeedbacks() {
-  const [rows] = await pool.query("SELECT * FROM feedback_tbl");
+  const [rows] = await pool.query(`
+    SELECT feedback_tbl.*, user_tbl.first_name, user_tbl.last_name
+    FROM feedback_tbl
+    JOIN user_tbl ON feedback_tbl.user_id = user_tbl.user_id
+  `);
   return rows;
 }
 
-// Get a single feedback by ID
+// Get a single feedback by ID with user's first and last name
 export async function getFeedback(id) {
   const [rows] = await pool.query(
-    "SELECT * FROM feedback_tbl WHERE feedback_id = ?",
+    `
+      SELECT feedback_tbl.*, user_tbl.first_name, user_tbl.last_name
+      FROM feedback_tbl
+      JOIN user_tbl ON feedback_tbl.user_id = user_tbl.user_id
+      WHERE feedback_tbl.feedback_id = ?
+    `,
     [id]
   );
   return rows[0];
@@ -27,13 +36,7 @@ export async function createFeedback(feedback) {
 
 // Update feedback details
 export async function updateFeedback(id, feedback) {
-  const {
-    user_id,
-    product_id,
-    service_id,
-    comment,
-    rating
-  } = feedback;
+  const { user_id, product_id, service_id, comment, rating } = feedback;
 
   await pool.query(
     `UPDATE feedback_tbl 
@@ -44,14 +47,7 @@ export async function updateFeedback(id, feedback) {
           comment = ?,
           rating = ?
        WHERE feedback_id = ?`,
-    [
-        user_id,
-        product_id,
-        service_id,
-        comment,
-        rating,
-      id,
-    ]
+    [user_id, product_id, service_id, comment, rating, id]
   );
 
   return { message: "Feedback updated successfully" };
