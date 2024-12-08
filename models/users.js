@@ -1,4 +1,16 @@
 import pool from "../db_connect.js";
+import bcrypt from "bcrypt";
+
+// Utility: Hash password
+export async function hashPassword(password) {
+  const salt = await bcrypt.genSalt(10);
+  return bcrypt.hash(password, salt);
+}
+
+// Utility: Verify password
+export async function verifyPassword(inputPassword, hashedPassword) {
+  return bcrypt.compare(inputPassword, hashedPassword);
+}
 
 // Get all users
 export async function getUsers() {
@@ -17,7 +29,7 @@ export async function getUser(id) {
 // Create a new user
 export async function createUser(user) {
   const {
-    user_type,
+    user_type = "Customer", // Default role
     first_name,
     last_name,
     phone_number,
@@ -30,6 +42,16 @@ export async function createUser(user) {
     GST_no,
     user_password,
   } = user;
+
+  // Hash password
+  const hashedPassword = await hashPassword(user_password);
+
+  // Check if email already exists
+  const [existingUser] = await pool.query("SELECT * FROM user_tbl WHERE email = ?", [email]);
+  if (existingUser.length > 0) {
+    throw new Error("Email is already registered");
+  }
+
   const [result] = await pool.query(
     "INSERT INTO user_tbl (user_type, first_name, last_name, phone_number, email, company_name, company_address, address_city, address_state, address_country, GST_no, user_password) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
     [
@@ -44,7 +66,7 @@ export async function createUser(user) {
       address_state,
       address_country,
       GST_no,
-      user_password,
+      hashedPassword,
     ]
   );
   return { id: result.insertId };
@@ -66,6 +88,12 @@ export async function updateUser(id, user) {
     GST_no,
     user_password,
   } = user;
+
+  // Hash password only if provided
+  let hashedPassword = user_password;
+  if (user_password) {
+    hashedPassword = await hashPassword(user_password);
+  }
 
   await pool.query(
     `UPDATE user_tbl 
@@ -95,7 +123,7 @@ export async function updateUser(id, user) {
       address_state,
       address_country,
       GST_no,
-      user_password,
+      hashedPassword,
       id,
     ]
   );

@@ -20,7 +20,7 @@ export async function createCategory(category) {
   const { category_name, category_description, category_img } = category;
   const [result] = await pool.query(
     "INSERT INTO category_tbl (category_name, category_description, category_img) VALUES (?, ?, ?)",
-    [category_name, category_description, category_img]
+    [category_name, category_description, JSON.stringify(category_img)]
   );
   return { id: result.insertId };
 }
@@ -29,7 +29,7 @@ export async function createCategory(category) {
 export async function updateCategory(id, category) {
   const { category_name, category_description, category_img } = category;
   await pool.query(
-    `UPDATE category_tbl SET category_name = ?, category_description = ? WHERE category_id = ?`, [category_name, category_description, category_img, id]
+    `UPDATE category_tbl SET category_name = ?, category_description = ?, category_img = ? WHERE category_id = ?`, [category_name, category_description, JSON.stringify(category_img), id]
   );
   return { message: "Category updated successfully" };
 }

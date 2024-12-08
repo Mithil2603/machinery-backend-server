@@ -16,6 +16,9 @@ export function authenticate(req, res, next) {
     req.user = payload; // Attach user info to the request
     next();
   } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ error: "Token expired" });
+    }
     res.status(403).json({ error: "Invalid token" });
   }
 }
